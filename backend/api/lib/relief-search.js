@@ -7,24 +7,34 @@ import { rankShelters } from "./ranker.js";
 
 const DEFAULT_KEYWORDS = [
   {
-    keyword: "Red Cross emergency shelter",
+    keyword: "Red Cross",
     safety: { wildfire: 9, earthquake: 7, tsunami: 5 },
     notes: "Official or partner-managed emergency shelter candidate.",
   },
   {
-    keyword: "wildfire evacuation center",
+    keyword: "emergency shelter",
     safety: { wildfire: 8, earthquake: 6, tsunami: 5 },
     notes: "Potential evacuation center. Confirm open status before traveling.",
   },
   {
-    keyword: "community center emergency shelter",
+    keyword: "community center",
     safety: { wildfire: 6, earthquake: 6, tsunami: 5 },
     notes: "Community facility that may be used during evacuations.",
   },
   {
-    keyword: "public library emergency shelter",
+    keyword: "public library",
     safety: { wildfire: 6, earthquake: 6, tsunami: 5 },
     notes: "Public facility that may offer daytime relief or information.",
+  },
+  {
+    keyword: "recreation center",
+    safety: { wildfire: 6, earthquake: 6, tsunami: 5 },
+    notes: "Public facility that may be used as a temporary relief site.",
+  },
+  {
+    keyword: "high school",
+    safety: { wildfire: 6, earthquake: 6, tsunami: 5 },
+    notes: "Large public facility candidate. Verify official shelter status before traveling.",
   },
 ];
 
@@ -54,7 +64,7 @@ export async function searchReliefCenters(query) {
     settleSource("federal_static", async () => getStaticFederalShelters(location.lat, location.lng, radiusKm)),
     settleSource("openstreetmap", async () => fetchOpenStreetMapReliefCenters(location.lat, location.lng, radiusKm)),
     settleSource("google_places", async () =>
-      fetchAllDynamicShelters(DEFAULT_KEYWORDS, location.lat, location.lng, disaster, radiusKm)
+      fetchAllDynamicShelters(DEFAULT_KEYWORDS, location.lat, location.lng, disaster, radiusKm, location.label)
     ),
     settleSource("web_scrape", async () => scrapeReliefCenterLinks(location.label, disaster)),
   ]);
@@ -86,7 +96,7 @@ export async function searchReliefCenters(query) {
     },
     total: ranked.length + webOnlyShelters.length,
     sourceStatus,
-    shelters: [...ranked, ...webOnlyShelters].slice(0, 24),
+    shelters: [...ranked, ...webOnlyShelters].slice(0, 10),
   };
 }
 
@@ -115,6 +125,6 @@ export async function searchReliefCentersWithDb(query, db) {
       { name: "mongodb_federal_static", ok: true, count: federalFromDb.length },
       ...result.sourceStatus,
     ],
-    shelters: ranked.slice(0, 24),
+    shelters: ranked.slice(0, 10),
   };
 }
