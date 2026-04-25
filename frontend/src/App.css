@@ -380,15 +380,39 @@ input {
   gap: 0.55rem;
   align-items: center;
   min-height: 42px;
+  padding: 0.5rem 0.6rem;
+}
+
+.checklist li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 0.5rem 0.6rem;
 }
 
 .checklist input {
   width: 16px;
   height: 16px;
   accent-color: #1f6f47;
+}
+
+.checklist button {
+  margin-right: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+  padding: 0.28rem 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.checklist button:hover,
+.checklist button:focus {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
 }
 
 .source-list {

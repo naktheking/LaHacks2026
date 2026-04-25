@@ -16,10 +16,14 @@ const goBagItems = {
 function GoBagChecklist({ disaster }) {
   const [checked, setChecked] = useState({})
   const [customItems, setCustomItems] = useState([])
+  const [removedItems, setRemovedItems] = useState([])
   const [customInput, setCustomInput] = useState('')
   const items = useMemo(
-    () => [...goBagItems.common, ...goBagItems[disaster], ...customItems],
-    [customItems, disaster],
+    () =>
+      [...goBagItems.common, ...goBagItems[disaster], ...customItems].filter(
+        (item) => !removedItems.includes(item),
+      ),
+    [customItems, disaster, removedItems],
   )
   const checkedCount = items.filter((item) => checked[item]).length
   const progress = Math.round((checkedCount / items.length) * 100)
@@ -35,6 +39,16 @@ function GoBagChecklist({ disaster }) {
 
     setCustomItems((prev) => [...prev, nextItem])
     setCustomInput('')
+  }
+
+  function removeItem(item) {
+    setCustomItems((prev) => prev.filter((customItem) => customItem !== item))
+    setRemovedItems((prev) => (prev.includes(item) ? prev : [...prev, item]))
+    setChecked((prev) => {
+      const next = { ...prev }
+      delete next[item]
+      return next
+    })
   }
 
   return (
@@ -68,6 +82,9 @@ function GoBagChecklist({ disaster }) {
               />
               <span>{item}</span>
             </label>
+            <button type="button" onClick={() => removeItem(item)} aria-label={`Remove ${item}`}>
+              Remove
+            </button>
           </li>
         ))}
       </ul>
