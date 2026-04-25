@@ -1,11 +1,19 @@
 const PLACES_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
 
-export async function fetchAllDynamicShelters(keywords, lat, lng, disaster) {
+export async function fetchAllDynamicShelters(keywords, lat, lng, disaster, radiusKm = 25) {
+  if (!process.env.GOOGLE_MAPS_KEY) {
+    return [];
+  }
+
+  const radiusMeters = Math.min(Math.round(radiusKm * 1000), 50000);
   const allResults = await Promise.all(
     keywords.map(({ keyword, safety, notes }) =>
-      fetch(`${PLACES_URL}?location=${lat},${lng}&radius=25000&keyword=${encodeURIComponent(keyword)}&key=${process.env.GOOGLE_MAPS_KEY}`)
-        .then(r => r.json())
-        .then(d => (d.results ?? []).map(place => ({
+      fetch(`${PLACES_URL}?location=${lat},${lng}&radius=${radiusMeters}&keyword=${encodeURIComponent(keyword)}&key=${process.env.GOOGLE_MAPS_KEY}`)
+        .then((r) => {
+          if (!r.ok) throw new Error(`Google Places returned ${r.status}`);
+          return r.json();
+        })
+        .then((d) => (d.results ?? []).map(place => ({
           place_id: place.place_id,
           name: place.name,
           address: place.vicinity,
@@ -17,6 +25,7 @@ export async function fetchAllDynamicShelters(keywords, lat, lng, disaster) {
           safety_rating: safety[disaster] ?? 5,
           notes,
           source: "google_places",
+          source_priority: 2,
           cachedAt: new Date(),
         })))
     )
