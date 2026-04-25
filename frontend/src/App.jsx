@@ -141,7 +141,7 @@ function App() {
 
 
  return (
-   <main className="app-shell">
+   <main className="app-shell" data-disaster={disaster}>
      <header className="hero">
        <p className="eyebrow">SOCAL EVACUATION PROTOTYPE</p>
        <h1>Find your fastest route to a safer shelter.</h1>
