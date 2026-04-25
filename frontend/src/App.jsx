@@ -24,6 +24,7 @@ const shelterData = [
    name: 'Pasadena Civic Relief Center',
    city: 'Pasadena',
    distanceMi: 8.7,
+   coords: { lat: 34.1478, lng: -118.1445 },
    avgCrowd: 410,
    capacity: 700,
    safety: { wildfire: 93, earthquake: 86, tsunami: 79 },
@@ -34,6 +35,7 @@ const shelterData = [
    name: 'Glendale Transit Shelter Hub',
    city: 'Glendale',
    distanceMi: 12.9,
+   coords: { lat: 34.1425, lng: -118.2551 },
    avgCrowd: 290,
    capacity: 540,
    safety: { wildfire: 84, earthquake: 90, tsunami: 74 },
@@ -44,6 +46,7 @@ const shelterData = [
    name: 'Cal State LA Emergency Arena',
    city: 'Los Angeles',
    distanceMi: 15.2,
+   coords: { lat: 34.0669, lng: -118.1686 },
    avgCrowd: 580,
    capacity: 1100,
    safety: { wildfire: 89, earthquake: 88, tsunami: 81 },
@@ -54,6 +57,7 @@ const shelterData = [
    name: 'Pomona Fairplex Safe Grounds',
    city: 'Pomona',
    distanceMi: 23.8,
+   coords: { lat: 34.086, lng: -117.7653 },
    avgCrowd: 360,
    capacity: 920,
    safety: { wildfire: 91, earthquake: 84, tsunami: 88 },
@@ -86,44 +90,133 @@ function getSafetyLabel(score) {
  return 'High Risk'
 }
 
+function toRadians(value) {
+ return (value * Math.PI) / 180
+}
+
+function haversineDistanceMi(start, end) {
+ const earthRadiusMi = 3958.8
+ const dLat = toRadians(end.lat - start.lat)
+ const dLng = toRadians(end.lng - start.lng)
+ const a =
+   Math.sin(dLat / 2) ** 2 +
+   Math.cos(toRadians(start.lat)) *
+     Math.cos(toRadians(end.lat)) *
+     Math.sin(dLng / 2) ** 2
+ const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+ return earthRadiusMi * c
+}
+
 
 function App() {
  const [disaster, setDisaster] = useState('wildfire')
- const [location, setLocation] = useState('Westwood, Los Angeles')
+ const [locationLabel, setLocationLabel] = useState('Westwood, Los Angeles (default)')
+ const [userCoords, setUserCoords] = useState(null)
+ const [addressQuery, setAddressQuery] = useState('')
+ const [locationStatus, setLocationStatus] = useState(
+   'Using default location. Enable location permission for live distance ranking.',
+ )
+ const [isLocating, setIsLocating] = useState(false)
+ const [isSearchingAddress, setIsSearchingAddress] = useState(false)
  const [transport, setTransport] = useState('car')
- const [severity, setSeverity] = useState(70)
  const [groupSize, setGroupSize] = useState(2)
  const [checked, setChecked] = useState({})
+
+ const requestCurrentLocation = () => {
+   if (!navigator.geolocation) {
+     setLocationStatus('Geolocation is not supported in this browser.')
+     return
+   }
+
+   setIsLocating(true)
+   setLocationStatus('Requesting location permission...')
+
+   navigator.geolocation.getCurrentPosition(
+     ({ coords }) => {
+       const nextCoords = { lat: coords.latitude, lng: coords.longitude }
+       setUserCoords(nextCoords)
+       setLocationLabel(
+         `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+       )
+       setLocationStatus('Live location enabled. Rankings now use your current location.')
+       setIsLocating(false)
+     },
+     (error) => {
+       let message = 'Unable to access your location.'
+       if (error.code === error.PERMISSION_DENIED) {
+         message = 'Location permission denied. Rankings are using the default location.'
+       } else if (error.code === error.TIMEOUT) {
+         message = 'Location request timed out. Try again.'
+       }
+       setLocationStatus(message)
+       setIsLocating(false)
+     },
+     { enableHighAccuracy: true, timeout: 12000, maximumAge: 120000 },
+   )
+ }
+
+ const useSearchedAddress = async () => {
+   if (!addressQuery.trim()) {
+     setLocationStatus('Enter an address to search.')
+     return
+   }
+
+   setIsSearchingAddress(true)
+   setLocationStatus('Searching for that address...')
+
+   try {
+     const endpoint = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addressQuery.trim())}`
+     const response = await fetch(endpoint)
+     if (!response.ok) {
+       throw new Error('Address lookup failed.')
+     }
+
+     const results = await response.json()
+     if (!results.length) {
+       setLocationStatus('No matching address found. Try a more specific search.')
+       setIsSearchingAddress(false)
+       return
+     }
+
+     const bestMatch = results[0]
+     const nextCoords = {
+       lat: Number(bestMatch.lat),
+       lng: Number(bestMatch.lon),
+     }
+     setUserCoords(nextCoords)
+     setLocationLabel(bestMatch.display_name)
+     setLocationStatus('Address location selected. Rankings now use this searched address.')
+   } catch (error) {
+     setLocationStatus('Could not search that address right now. Please try again.')
+   } finally {
+     setIsSearchingAddress(false)
+   }
+ }
 
 
  const rankedShelters = useMemo(() => {
    return shelterData
      .map((shelter) => {
        const safetyScore = shelter.safety[disaster]
-       const distanceScore = Math.max(0, 100 - shelter.distanceMi * 2.7)
+       const distanceMi = userCoords
+         ? haversineDistanceMi(userCoords, shelter.coords)
+         : shelter.distanceMi
+       const distanceScore = Math.max(0, 100 - distanceMi * 2.7)
        const availability = Math.max(0, shelter.capacity - shelter.avgCrowd)
        const availabilityScore = (availability / shelter.capacity) * 100
-       const crowdPenalty =
-         (severity / 100) * (1 - availability / shelter.capacity) * 14
        const total =
-         safetyScore * 0.55 +
-         distanceScore * 0.25 +
-         availabilityScore * 0.2 -
-         crowdPenalty
-       const eta = Math.round(
-         (shelter.distanceMi / transportSpeed[transport]) *
-           60 *
-           (1 + severity / 260),
-       )
+         safetyScore * 0.58 + distanceScore * 0.27 + availabilityScore * 0.15
+       const eta = Math.max(1, Math.round((distanceMi / transportSpeed[transport]) * 60 * 1.08))
        return {
          ...shelter,
+         distanceMi: Number(distanceMi.toFixed(1)),
          score: Math.round(Math.min(100, Math.max(0, total))),
          eta,
          availability,
        }
      })
      .sort((a, b) => b.score - a.score)
- }, [disaster, severity, transport])
+ }, [disaster, transport, userCoords])
 
 
  const topShelter = rankedShelters[0]
@@ -186,14 +279,37 @@ function App() {
          </div>
 
 
-         <label className="field">
-           Current location
-           <input
-             value={location}
-             onChange={(e) => setLocation(e.target.value)}
-             placeholder="e.g. Santa Monica"
-           />
-         </label>
+         <div className="location-card">
+           <p className="field-label">Location for ranking</p>
+           <p className="location-value">{locationLabel}</p>
+           <p className="muted small">{locationStatus}</p>
+           <label className="field">
+             Search address
+             <input
+               value={addressQuery}
+               onChange={(e) => setAddressQuery(e.target.value)}
+               placeholder="e.g. 405 Hilgard Ave, Los Angeles"
+             />
+           </label>
+           <div className="location-actions">
+             <button
+               type="button"
+               className="location-btn"
+               onClick={useSearchedAddress}
+               disabled={isSearchingAddress}
+             >
+               {isSearchingAddress ? 'Searching...' : 'Use searched address'}
+             </button>
+             <button
+               type="button"
+               className="location-btn"
+               onClick={requestCurrentLocation}
+               disabled={isLocating}
+             >
+               {isLocating ? 'Getting location...' : 'Use my current location'}
+             </button>
+           </div>
+         </div>
 
 
          <div className="field-row">
@@ -222,21 +338,9 @@ function App() {
          </div>
 
 
-         <label className="field">
-           Incident severity: {severity}/100
-           <input
-             type="range"
-             min="10"
-             max="100"
-             value={severity}
-             onChange={(e) => setSeverity(Number(e.target.value))}
-           />
-         </label>
-
-
          <div className="formula">
-           Ranked by disaster safety, distance from <strong>{location}</strong>,
-           and crowd load.
+           Ranked by disaster safety, distance from <strong>{locationLabel}</strong>,
+           and shelter crowd load.
          </div>
        </article>
 

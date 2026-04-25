@@ -198,6 +198,58 @@ h3 {
 }
 
 
+.field-label {
+ margin: 0;
+ color: var(--ink-soft);
+ font-size: 0.85rem;
+ font-weight: 600;
+}
+
+
+.location-card {
+ margin-top: 0.82rem;
+ border: 1px solid var(--theme-mid);
+ border-radius: 11px;
+ background: #fff;
+ padding: 0.7rem;
+ display: grid;
+ gap: 0.45rem;
+}
+
+
+.location-value {
+ margin: 0;
+ color: var(--theme-ink);
+ font-weight: 700;
+ font-size: 0.95rem;
+}
+
+
+.location-btn {
+ border: 1px solid var(--theme-mid);
+ background: var(--theme-soft);
+ color: var(--theme-ink);
+ border-radius: 10px;
+ padding: 0.54rem 0.66rem;
+ font-family: var(--font-heading);
+ font-size: 0.87rem;
+ font-weight: 600;
+ cursor: pointer;
+}
+
+.location-actions {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 0.45rem;
+}
+
+
+.location-btn:disabled {
+ opacity: 0.7;
+ cursor: wait;
+}
+
+
 .field input,
 .field select {
  border-radius: 10px;
@@ -212,7 +264,8 @@ h3 {
 
 .field input:focus,
 .field select:focus,
-.tab:focus {
+.tab:focus,
+.location-btn:focus {
  outline: 2px solid var(--focus);
  outline-offset: 1px;
 }
@@ -509,7 +562,8 @@ h3 {
 
 
  .tabs,
- .field-row {
+ .field-row,
+ .location-actions {
    grid-template-columns: 1fr;
  }
 
