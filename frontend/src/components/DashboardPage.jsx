@@ -45,12 +45,12 @@ function DashboardPage({
       </header>
 
       <section className="dashboard-grid">
-        <DirectionsMap location={location} selectedShelter={selectedShelter} />
         <ReliefCentersList
           shelters={shelters}
           selectedPlaceId={selectedShelter?.place_id}
           onSelect={setSelectedPlaceId}
         />
+        <DirectionsMap location={location} selectedShelter={selectedShelter} />
         <GoBagChecklist disaster={disaster} />
         <SourceChecks sources={results.sourceStatus ?? []} />
       </section>
