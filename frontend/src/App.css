@@ -333,6 +333,39 @@ input {
   background: #1f6f47;
 }
 
+.custom-checklist-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: end;
+  margin-top: 0.8rem;
+}
+
+.custom-checklist-form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--ink-soft);
+  font-weight: 800;
+}
+
+.custom-checklist-form input {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+}
+
+.custom-checklist-form button {
+  border: 1px solid #6fb48e;
+  border-radius: 8px;
+  min-height: 42px;
+  padding: 0.6rem 0.9rem;
+  background: #dff4ea;
+  color: var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .checklist {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
