@@ -25,8 +25,8 @@ function DashboardPage({
           Back
         </button>
         <div>
-          <p className="eyebrow">{disasterModes[disaster]} mode</p>
-          <h1>Top 10 relief centers</h1>
+          <h1>SafeRoute</h1>
+          <p className="eyebrow">{disasterModes[disaster]} mode | Top 10 relief centers</p>
           <p className="muted">{location?.label}</p>
         </div>
         <div className="header-actions">

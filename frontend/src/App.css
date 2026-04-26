@@ -2,7 +2,7 @@
 .dashboard-page {
   width: min(1180px, calc(100vw - 2rem));
   margin: 0 auto;
-  color: var(--ink);
+  color: #000;
 }
 
 .start-page {
@@ -19,12 +19,12 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
 }
 
 .eyebrow {
   margin: 0;
-  color: var(--muted);
+  color: #000;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -38,26 +38,26 @@ p {
 }
 
 h1 {
-  color: var(--ink);
+  color: #000;
   font-size: clamp(2rem, 5vw, 4rem);
   line-height: 0.98;
   max-width: 12ch;
 }
 
 h2 {
-  color: var(--ink);
+  color: #000;
   font-size: 1.2rem;
 }
 
 h3 {
-  color: var(--ink);
+  color: #000;
   font-size: 1rem;
 }
 
 .muted,
 .hint,
 .status-line {
-  color: var(--muted);
+  color: #000;
 }
 
 .disaster-actions,
@@ -82,14 +82,14 @@ input {
   min-height: 42px;
   padding: 0.65rem 0.8rem;
   background: #fff;
-  color: var(--ink);
+  color: #000;
   font-weight: 800;
   cursor: pointer;
 }
 
 .primary-choice {
-  background: #dff4ea;
-  border-color: #6fb48e;
+  background: #fff;
+  border-color: #fff;
 }
 
 .primary-choice:hover,
@@ -120,7 +120,7 @@ input {
 .location-form label {
   display: grid;
   gap: 0.35rem;
-  color: var(--ink-soft);
+  color: #000;
   font-weight: 800;
 }
 
@@ -140,7 +140,10 @@ input {
 .dashboard-page {
   display: grid;
   gap: 1rem;
-  padding: 1rem 0 2rem;
+  width: 100%;
+  padding: 0 0 2rem;
+  background: #fff;
+  min-height: 100vh;
 }
 
 .dashboard-header {
@@ -148,23 +151,40 @@ input {
   grid-template-columns: auto 1fr auto;
   gap: 1rem;
   align-items: center;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
+  padding: 1rem max(1rem, calc((100vw - 1180px) / 2));
+  border-bottom: 1px solid #d7dce3;
+  background: #eef0f3;
+  color: #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .dashboard-header h1 {
-  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
   max-width: none;
+  color: #000;
+}
+
+.dashboard-header .eyebrow,
+.dashboard-header .muted {
+  color: #000;
+}
+
+.dashboard-header .back-button,
+.dashboard-header .mode-button {
+  background: #fff;
+  border-color: #c9d0d9;
+  color: #000;
 }
 
 .mode-button.active {
-  background: #dff4ea;
-  border-color: #6fb48e;
+  background: #fff;
+  border-color: #8c98a8;
+  color: #000;
 }
 
 .dashboard-grid {
+  width: min(1180px, calc(100vw - 2rem));
+  margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 1rem;
@@ -176,7 +196,35 @@ input {
   border-radius: 8px;
   background: #fff;
   padding: 1rem;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+.list-panel {
+  background: #eef0f3;
+  border-color: #d7dce3;
+  color: #000;
+}
+
+.list-panel h2,
+.list-panel h3,
+.list-panel .muted,
+.list-panel p,
+.list-panel .score {
+  color: #000;
+}
+
+.map-panel,
+.checklist-panel {
+  background: #eef0f3;
+  border-color: #d7dce3;
+  color: #000;
+}
+
+.map-panel h2,
+.map-panel .muted,
+.checklist-panel h2,
+.checklist-panel .muted {
+  color: #000;
 }
 
 .map-panel,
@@ -199,7 +247,7 @@ input {
 
 .section-heading a,
 .card-actions a {
-  color: #1f6f47;
+  color: #000;
   font-weight: 800;
   text-decoration: none;
 }
@@ -253,20 +301,20 @@ input {
   grid-template-columns: auto 1fr auto;
   gap: 0.75rem;
   align-items: start;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: 8px;
   padding: 0.75rem;
   background: #fff;
 }
 
 .relief-card.selected {
-  border-color: #1f6f47;
-  box-shadow: 0 0 0 2px #8fd1ad;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .relief-card p {
   margin-top: 0.25rem;
-  color: var(--muted);
+  color: #000;
   font-size: 0.9rem;
 }
 
@@ -276,14 +324,15 @@ input {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: #1f6f47;
-  color: #fff;
+  background: #fff;
+  color: #000;
+  border: 1px solid #c9d0d9;
   font-weight: 800;
   font-size: 0.82rem;
 }
 
 .score {
-  color: #1f6f47;
+  color: #000;
   font-size: 1.25rem;
 }
 
@@ -295,10 +344,10 @@ input {
 }
 
 .chips span {
-  border: 1px solid var(--line);
+  border: 1px solid #c9d0d9;
   border-radius: 999px;
   padding: 0.14rem 0.48rem;
-  color: var(--ink-soft);
+  color: #000;
   font-size: 0.76rem;
   font-weight: 700;
 }
@@ -314,15 +363,16 @@ input {
 .card-actions button {
   min-height: 32px;
   padding: 0.25rem 0.65rem;
-  background: #dff4ea;
-  border-color: #6fb48e;
+  background: #fff;
+  border-color: #c9d0d9;
+  color: #000;
 }
 
 .progress {
   height: 10px;
   overflow: hidden;
   margin-top: 0.7rem;
-  border: 1px solid var(--line);
+  border: 1px solid #c9d0d9;
   border-radius: 999px;
   background: #fff;
 }
@@ -330,7 +380,7 @@ input {
 .progress span {
   display: block;
   height: 100%;
-  background: #1f6f47;
+  background: #b8c0ca;
 }
 
 .custom-checklist-form {
@@ -344,24 +394,26 @@ input {
 .custom-checklist-form label {
   display: grid;
   gap: 0.35rem;
-  color: var(--ink-soft);
+  color: #000;
   font-weight: 800;
 }
 
 .custom-checklist-form input {
   min-height: 42px;
-  border: 1px solid var(--line);
+  border: 1px solid #c9d0d9;
   border-radius: 8px;
   padding: 0.6rem 0.7rem;
+  background: #fff;
+  color: #000;
 }
 
 .custom-checklist-form button {
-  border: 1px solid #6fb48e;
+  border: 1px solid #c9d0d9;
   border-radius: 8px;
   min-height: 42px;
   padding: 0.6rem 0.9rem;
-  background: #dff4ea;
-  color: var(--ink);
+  background: #fff;
+  color: #000;
   font-weight: 800;
   cursor: pointer;
 }
@@ -387,22 +439,23 @@ input {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  border: 1px solid var(--line);
+  border: 1px solid #c9d0d9;
   border-radius: 8px;
+  color: #000;
 }
 
 .checklist input {
   width: 16px;
   height: 16px;
-  accent-color: #1f6f47;
+  accent-color: #000;
 }
 
 .checklist button {
   margin-right: 0.5rem;
-  border: 1px solid var(--line);
+  border: 1px solid #c9d0d9;
   border-radius: 8px;
   background: #fff;
-  color: var(--muted);
+  color: #000;
   padding: 0.28rem 0.5rem;
   font-size: 0.78rem;
   font-weight: 800;
@@ -435,7 +488,7 @@ input {
 }
 
 .source strong {
-  color: #1f6f47;
+  color: #000;
 }
 
 .source small {
