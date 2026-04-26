@@ -89,7 +89,7 @@ input {
 
 .primary-choice {
   background: #fff;
-  border-color: #fff;
+  border-color: #c9d0d9;
 }
 
 .primary-choice:hover,
@@ -142,7 +142,7 @@ input {
   gap: 1rem;
   width: 100%;
   padding: 0 0 2rem;
-  background: #fff;
+  background: #8bb8e8;
   min-height: 100vh;
 }
 
@@ -218,6 +218,10 @@ input {
   background: #eef0f3;
   border-color: #d7dce3;
   color: #000;
+}
+
+.checklist-panel {
+  grid-column: 1 / -1;
 }
 
 .map-panel h2,
@@ -505,6 +509,10 @@ input {
   .dashboard-header,
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .checklist-panel {
+    grid-column: auto;
   }
 
   .header-actions {

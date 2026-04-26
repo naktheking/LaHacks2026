@@ -1,4 +1,51 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+const MAPS_KEY =
+  import.meta.env.VITE_GOOGLE_MAPS_KEY ?? import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY
+const GOOGLE_MAPS_SCRIPT_ID = 'google-maps-places-script'
+
+function loadGooglePlaces() {
+  if (!MAPS_KEY) {
+    return Promise.reject(new Error('Missing Google Maps API key.'))
+  }
+
+  if (window.google?.maps?.places) {
+    return Promise.resolve(window.google)
+  }
+
+  return new Promise((resolve, reject) => {
+    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID)
+
+    window.initSafePathPlaces = () => {
+      if (window.google?.maps?.places) {
+        resolve(window.google)
+        return
+      }
+
+      reject(new Error('Google Places did not load.'))
+    }
+
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(window.google), { once: true })
+      existingScript.addEventListener('error', () => reject(new Error('Google Places failed to load.')), {
+        once: true,
+      })
+      return
+    }
+
+    const script = document.createElement('script')
+    script.id = GOOGLE_MAPS_SCRIPT_ID
+    script.src = `https://maps.googleapis.com/maps/api/js?${new URLSearchParams({
+      key: MAPS_KEY,
+      libraries: 'places',
+      callback: 'initSafePathPlaces',
+    })}`
+    script.async = true
+    script.defer = true
+    script.onerror = () => reject(new Error('Google Places failed to load.'))
+    document.head.appendChild(script)
+  })
+}
 
 function StartPage({
   disasterModes,
@@ -10,7 +57,51 @@ function StartPage({
 }) {
   const [locationInput, setLocationInput] = useState('San Francisco')
   const [locationStatus, setLocationStatus] = useState(status)
+  const inputRef = useRef(null)
   const hasLocation = Boolean(location)
+
+  useEffect(() => {
+    let listener = null
+    let isMounted = true
+
+    loadGooglePlaces()
+      .then((google) => {
+        if (!isMounted || !inputRef.current) {
+          return
+        }
+
+        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+          fields: ['formatted_address', 'geometry', 'name'],
+          types: ['geocode'],
+        })
+
+        listener = autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace()
+          const label = place.formatted_address || place.name || inputRef.current.value.trim()
+          const geometry = place.geometry?.location
+
+          if (!label) {
+            return
+          }
+
+          setLocationInput(label)
+          onLocationChange({
+            label,
+            coords: geometry ? { lat: geometry.lat(), lng: geometry.lng() } : null,
+            source: 'google_places_autocomplete',
+          })
+          setLocationStatus(`Location set to ${label}.`)
+        })
+      })
+      .catch(() => {
+        // Keep the manual text entry path available if Places cannot load.
+      })
+
+    return () => {
+      isMounted = false
+      listener?.remove()
+    }
+  }, [onLocationChange])
 
   function useTypedLocation(event) {
     event.preventDefault()
@@ -57,7 +148,7 @@ function StartPage({
   return (
     <main className="start-page">
       <section className="start-panel">
-        <p className="eyebrow">SAFEPATH</p>
+        <p className="eyebrow">SafeRoute</p>
         <h1>Find relief centers fast.</h1>
 
         <div className="disaster-actions" aria-label="Choose disaster type">
@@ -78,9 +169,11 @@ function StartPage({
           <label>
             Location
             <input
+              ref={inputRef}
               value={locationInput}
               onChange={(event) => setLocationInput(event.target.value)}
               placeholder="City or address"
+              autoComplete="off"
             />
           </label>
           <div className="location-actions">
@@ -96,7 +189,6 @@ function StartPage({
         <p className="status-line">
           {location ? `Ready: ${location.label}` : locationStatus || status}
         </p>
-        {!hasLocation && <p className="hint">Set a location to enable disaster search.</p>}
       </section>
     </main>
   )

@@ -15,7 +15,7 @@ function App() {
   const [location, setLocation] = useState(null)
   const [disaster, setDisaster] = useState('wildfire')
   const [results, setResults] = useState(null)
-  const [status, setStatus] = useState('Set a location first.')
+  const [status, setStatus] = useState('Enter a location or use your current location.')
   const [isSearching, setIsSearching] = useState(false)
   const [page, setPage] = useState('start')
 

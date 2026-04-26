@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import DirectionsMap from './DirectionsMap'
 import GoBagChecklist from './GoBagChecklist'
 import ReliefCentersList from './ReliefCentersList'
-import SourceChecks from './SourceChecks'
 
 function DashboardPage({
   disaster,
@@ -52,7 +51,6 @@ function DashboardPage({
         />
         <DirectionsMap location={location} selectedShelter={selectedShelter} />
         <GoBagChecklist disaster={disaster} />
-        <SourceChecks sources={results.sourceStatus ?? []} />
       </section>
     </main>
   )
