@@ -10,6 +10,8 @@ export default defineConfig({
   ],
 
   server: {
-    allowedHosts: true
+    allowedHosts: [
+      'ability-snowplow-overblown.ngrok-free.dev'
+    ]
   }
 })
