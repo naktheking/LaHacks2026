@@ -59,7 +59,6 @@ function StartPage({
   const [locationStatus, setLocationStatus] = useState(status)
   const inputRef = useRef(null)
   const hasLocation = Boolean(location)
-  const inputRef = useRef(null)
   const autocompleteRef = useRef(null)
 
   useEffect(() => {
