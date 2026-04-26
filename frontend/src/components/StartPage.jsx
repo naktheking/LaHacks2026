@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function StartPage({
   disasterModes,
@@ -8,9 +8,59 @@ function StartPage({
   onLocationChange,
   onDisasterSelect,
 }) {
-  const [locationInput, setLocationInput] = useState('San Francisco')
+  const [locationInput, setLocationInput] = useState('')
   const [locationStatus, setLocationStatus] = useState(status)
   const hasLocation = Boolean(location)
+  const inputRef = useRef(null)
+  const autocompleteRef = useRef(null)
+
+  useEffect(() => {
+    if (window.google?.maps?.places) {
+      initAutocomplete()
+      return
+    }
+
+    if (document.querySelector('#gmaps-script')) return
+
+    const script = document.createElement('script')
+    script.id = 'gmaps-script'
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY}&libraries=places`
+    script.async = true
+    script.defer = true
+    script.onload = initAutocomplete
+    document.head.appendChild(script)
+
+    return () => {
+      if (autocompleteRef.current) {
+        window.google?.maps?.event?.clearInstanceListeners(autocompleteRef.current)
+      }
+    }
+  }, [])
+
+  function initAutocomplete() {
+    if (!inputRef.current || autocompleteRef.current) return
+
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ['geocode'],
+    })
+
+    autocompleteRef.current.addListener('place_changed', () => {
+      const place = autocompleteRef.current.getPlace()
+      if (!place.geometry) return
+
+      const label = place.formatted_address || place.name
+      setLocationInput(label)
+      onLocationChange({
+        label,
+        coords: {
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        },
+        source: 'autocomplete',
+      })
+      setLocationStatus(`Location set to ${label}.`)
+    })
+  }
 
   function useTypedLocation(event) {
     event.preventDefault()
@@ -78,6 +128,7 @@ function StartPage({
           <label>
             Location
             <input
+              ref={inputRef}
               value={locationInput}
               onChange={(event) => setLocationInput(event.target.value)}
               placeholder="City or address"
