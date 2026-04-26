@@ -8,10 +8,4 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
-
-  server: {
-    allowedHosts: [
-      'ability-snowplow-overblown.ngrok-free.dev'
-    ]
-  }
 })
